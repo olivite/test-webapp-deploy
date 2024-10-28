@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+!.gitkeep
+/scripts/ansible/vars/*
+!/scripts/ansible/vars/.gitkeep

@@ -1,0 +1,10 @@
+---
+- name: Install dependencies
+  npm:
+    path: "{{ ansistrano_release_path.stdout }}"
+    state: present
+
+- name: Build React application
+  command: npm run build
+  args:
+    chdir: "{{ ansistrano_release_path.stdout }}"

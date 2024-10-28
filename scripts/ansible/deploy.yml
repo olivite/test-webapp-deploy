@@ -1,0 +1,29 @@
+---
+- name: Deploy project to production server
+  hosts: server2
+  gather_facts: false
+  become: true
+  remote_user: root
+  roles:
+    - { role: "cbrunnkvist.ansistrano-symfony-deploy" }
+  vars_files:
+    - "{{ playbook_dir }}/vars/config.yml"
+  vars:
+    # Ansistrano deploy paths
+    ansistrano_deploy_from: "{{ playbook_dir }}/../../"
+    ansistrano_deploy_to: "{{ vhost_path_prod }}"
+    ansistrano_keep_releases: 3
+    
+    # Ansistrano shared resources (adjusted for ReactJS)
+    ansistrano_shared_paths:
+      - "public/uploads"   # Keep upload folders if needed
+    ansistrano_shared_files:
+      - ".env"             # Only environment file as shared
+    
+    # Repository settings
+    ansistrano_deploy_via: "git"
+    ansistrano_git_repo: "{{ vhost_git_clone_repo }}"
+    ansistrano_git_branch: "main"
+    
+    # Build command
+    ansistrano_before_symlink_tasks_file: "{{ playbook_dir }}/hooks/before-symlink-tasks.yml"

@@ -1,0 +1,32 @@
+---
+- hosts: server1
+  gather_facts: true  # Recomendado para obtener información del sistema
+  become: true
+  remote_user: root
+  vars_files:
+    - "{{ playbook_dir }}/vars/config.yml"
+
+  tasks:
+    - name: Ensure Apache is installed
+      apt:
+        name: apache2
+        state: present
+        update_cache: yes
+
+    - name: Install new Apache virtual host in production server
+      template:
+        src: "{{ playbook_dir }}/templates/vhost-prod-test.conf"
+        dest: "/etc/apache2/sites-available/{{ vhost_priority_prod }}-{{ vhost_name_prod }}.conf"
+      notify: reload apache2  # Llamada al handler para recargar Apache
+
+    - name: Enable new Apache virtual host in production server
+      command: a2ensite {{ vhost_priority_prod }}-{{ vhost_name_prod }}
+      args:
+        creates: "/etc/apache2/sites-enabled/{{ vhost_priority_prod }}-{{ vhost_name_prod }}.conf"
+      notify: reload apache2
+
+  handlers:
+    - name: reload apache2
+      service:
+        name: apache2
+        state: reloaded
